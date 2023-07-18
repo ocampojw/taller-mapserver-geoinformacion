@@ -1,0 +1,226 @@
+#######################################################
+#	Autor: Jorge William Ocampo - Andres Estacio Cumbe
+#   Taller 4 Geoinformacion
+#######################################################
+
+MAP
+	NAME mapa_cali
+		SIZE 800 600
+		STATUS ON
+		#EXTENT [xmin] [ymin] [xmax] [ymax]
+		EXTENT 1040173.47 851557.66 1068939.03 887371.73
+		
+		FONTSET "lib/fonts/fonts.txt"
+		SYMBOLSET "lib/symbols/symbols.sym"
+		
+		IMAGECOLOR 255 255 255
+		UNITS METERS
+
+	WEB
+		IMAGEPATH "/var/www/html/geoinformacion/mapserver-geoinformacion/tmp/"
+		IMAGEURL "tmp/"
+	END
+	
+	#Leyenda embebida
+	LEGEND
+		STATUS EMBED
+		IMAGECOLOR 255 255 102
+		POSITION LL
+		KEYSIZE 20 12
+		KEYSPACING 5 5
+		LABEL
+			TYPE TRUETYPE
+			FONT "sans"
+			SIZE 9
+			COLOR 0 0 0
+		END
+		OUTLINECOLOR 51 51 51
+		#TRANSPARENT on
+	END
+	
+	LAYER
+		NAME "Norte"
+		TYPE POINT
+		STATUS ON
+		TRANSFORM OFF
+		POSTLABELCACHE TRUE
+		FEATURE
+			POINTS 
+				200 80
+			END
+		END
+		CLASS
+			SYMBOL 'rosavientos'
+			COLOR 0 0 0
+			OUTLINECOLOR 0 0 0
+			STYLE END
+		END
+	END
+
+	LAYER
+	  NAME "Areas Protegidas"
+	  TYPE RASTER
+	  STATUS ON
+	  CONNECTION "http://ws-idesc.cali.gov.co:8081/geoserver/wms?"
+	  CONNECTIONTYPE WMS
+	  METADATA
+	    "wms_srs"             "EPSG:3115"
+	    "wms_name"            "pot_2014:amb_eep_areas_protegidas"
+	   "wms_server_version"  "1.1.0"
+	   "wms_format"          "image/png"
+	  END
+	END 
+	
+	LAYER
+	  NAME "Zona Ambiental Rio Cauca"
+	  TYPE RASTER
+	  STATUS ON
+	  CONNECTION "http://ws-idesc.cali.gov.co:8081/geoserver/wms?"
+	  CONNECTIONTYPE WMS
+	  METADATA
+	    "wms_srs"             "EPSG:3115"
+	    "wms_name"            "pot_2014:amb_eep_aeie_proteccion_ambiental_rio_cauca"
+	   "wms_server_version"  "1.1.0"
+	   "wms_format"          "image/png"
+	  END
+	END
+
+	LAYER
+	  NAME "Corregimientos"
+	  TYPE RASTER
+	  STATUS ON
+	  CONNECTION "http://ws-idesc.cali.gov.co:8081/geoserver/wms?"
+	  CONNECTIONTYPE WMS
+	  METADATA
+	    "wms_srs"             "EPSG:3115"
+	    "wms_name"            "idesc:mc_corregimientos"
+	   "wms_server_version"  "1.1.0"
+	   "wms_format"          "image/png"
+	  END
+	END 
+
+	#capa barrios cali
+	LAYER
+		CONNECTIONTYPE postgis
+		NAME "Poligonos"
+		STATUS ON
+		CONNECTION "user=user password=user dbname=uvruteo host=localhost port=5432"
+		DATA "the_geom FROM barrios_cali as poligonos using unique gid using SRID=3115"
+		TYPE POLYGON
+		CLASS
+			NAME "Barrios Cali"
+			STYLE
+			  COLOR 128 128 128
+			  WIDTH 0.8
+			  OUTLINECOLOR 0 0 0
+			END
+		END
+	END
+	
+	LAYER
+	  NAME "Rios"
+	  TYPE RASTER
+	  STATUS ON
+	  CONNECTION "http://ws-idesc.cali.gov.co:8081/geoserver/wms?"
+	  CONNECTIONTYPE WMS
+	  METADATA
+	    "wms_srs"             "EPSG:3115"
+	    "wms_name"            "pot_2014:bcs_hid_rios"
+	   "wms_server_version"  "1.1.0"
+	   "wms_format"          "image/png"
+	  END
+	END 
+	
+	
+	#capa rutas mio
+	LAYER
+		CONNECTIONTYPE postgis
+		NAME "Lineas"
+		STATUS ON
+		CONNECTION "user=user password=user dbname=uvruteo host=localhost port=5432"
+		DATA "the_geom FROM rutas_mio as lineas using unique gid using SRID=3115"
+		TYPE LINE
+		CLASS
+			NAME "Rutas MIO"
+			STYLE
+				COLOR 255 0 0
+				WIDTH 0.5
+				OUTLINECOLOR 0 0 0
+			END
+		END
+	END
+	
+	#capa estaciones mio
+	LAYER
+		CONNECTIONTYPE postgis
+		NAME "Puntos"
+		STATUS ON
+		CONNECTION "user=user password=user dbname=uvruteo host=localhost port=5432"
+		DATA "the_geom FROM estaciones_mio as puntos using unique gid using SRID=3115"
+		TYPE POINT
+		CLASS
+			NAME "Estaciones MIO"
+			STYLE
+			    SYMBOL star
+				SIZE 8
+				COLOR 123 34 125
+				OUTLINECOLOR 250 255 0
+			END
+		END
+	END
+
+	SCALEBAR
+		STYLE 0
+		STATUS EMBED
+		SIZE 250 4
+		COLOR 0 0 0
+		UNITS METERS
+		INTERVALS 5
+		TRANSPARENT off
+		POSITION LC
+		BACKGROUNDCOLOR 255 255 255
+		IMAGECOLOR 255 255 255
+		OUTLINECOLOR 211 211 211
+		LABEL
+			COLOR 0 0 0
+			SIZE TINY
+		END 
+	END
+
+	
+	LAYER
+		NAME "Grilla"
+		METADATA
+			"DESCRIPTION" "Grid"
+		END
+		TYPE LINE
+		STATUS ON
+		CLASS
+			NAME "Graticule"
+			COLOR 0 0 0
+			LABEL
+				COLOR 0 0 0
+				FONT sans
+				TYPE truetype
+				SIZE 5
+				POSITION AUTO
+				PARTIALS FALSE
+				BUFFER 5
+				OUTLINECOLOR 255 255 255
+			END
+		END
+		PROJECTION
+			"init=epsg:3115"
+		END
+		GRID
+			#LABELFORMAT DDMM
+			#MAXARCS 5
+			#MAXINTERVAL 5
+			#MAXSUBDIVIDE 2
+			
+			LABELFORMAT '%.0fm'
+			MININTERVAL 5000
+		END
+	END
+	
+END
